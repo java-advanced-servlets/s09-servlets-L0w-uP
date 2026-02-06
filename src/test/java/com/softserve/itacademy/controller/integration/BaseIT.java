@@ -26,7 +26,7 @@ import java.util.List;
 public abstract class BaseIT {
 
     protected static Tomcat tomcat;
-    protected static final String WEB_PORT = "8081";
+    protected static final String WEB_PORT = "8080";
     protected List<Task> testTasks;
 
     @BeforeAll

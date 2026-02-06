@@ -3,7 +3,6 @@ package com.softserve.itacademy.controller;
 import com.softserve.itacademy.model.Task;
 import com.softserve.itacademy.repository.TaskRepository;
 
-import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -25,30 +24,28 @@ public class ReadTaskServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String idStr = request.getParameter("id");
-        if (idStr != null && !idStr.isEmpty()) {
-            try {
-                int id = Integer.parseInt(idStr);
-                Task task = taskRepository.read(id);
-                if (task != null) {
-                    request.setAttribute("task", task);
-                    request.getRequestDispatcher("/WEB-INF/pages/read-task.jsp").forward(request, response);
-                } else {
-                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    request.setAttribute("message", "Task with ID '" + id + "' not found!");
-                    request.getRequestDispatcher("/WEB-INF/pages/error.jsp").forward(request, response);
-                }
-            } catch (NumberFormatException e) {
-                request.setAttribute("message", "Invalid Task ID format!");
+        try {
+            if (idStr == null || idStr.isEmpty()) {
+                throw new IllegalArgumentException("Task ID is missing!");
+            }
+
+            int id = Integer.parseInt(idStr);
+
+            Task task = taskRepository.read(id);
+            if (task != null) {
+                request.setAttribute("task", task);
+                request.getRequestDispatcher("/WEB-INF/pages/read-task.jsp").forward(request, response);
+            } else {
+                request.setAttribute("message", "Task with ID '" + id + "' not found in To-Do List!");
                 request.getRequestDispatcher("/WEB-INF/pages/error.jsp").forward(request, response);
             }
-        } else {
-            request.setAttribute("message", "Task ID is missing!");
+
+        } catch (NumberFormatException e) {
+            request.setAttribute("message", "Invalid Task ID format!");
+            request.getRequestDispatcher("/WEB-INF/pages/error.jsp").forward(request, response);
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("message", e.getMessage());
             request.getRequestDispatcher("/WEB-INF/pages/error.jsp").forward(request, response);
         }
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-        // Optional: Logic for handling POST requests if needed
     }
 }
